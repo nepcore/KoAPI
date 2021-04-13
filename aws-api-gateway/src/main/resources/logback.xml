@@ -1,0 +1,15 @@
+<configuration>
+
+    <appender name="STDOUT" class="io.symphonia.lambda.logging.DefaultConsoleAppender">
+        <encoder>
+            <pattern>[%-5level] %X{AWSRequestId:-} - %logger{0}:%line: %replace(%msg){'\n','&#xd;'} %replace(%exception){'\n','&#xd;'} %nopexception %n</pattern>
+        </encoder>
+    </appender>
+
+    <variable name="LOG_LEVEL" value="${LOG_LEVEL:-info}" />
+
+    <root level="${LOG_LEVEL}">
+        <appender-ref ref="STDOUT" />
+    </root>
+
+</configuration>
