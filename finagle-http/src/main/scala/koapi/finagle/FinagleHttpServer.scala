@@ -19,6 +19,7 @@ import sun.misc.Signal
 
 import scala.util.Try
 import koapi.utils.URLHelper
+import koapi.routing.dsl.Param
 
 /** Wrapper for finagle to handle incoming requests
   *
@@ -57,7 +58,7 @@ class FinagleHttpServer(config: Config) extends Logger {
         Method.withName(request.method.name),
         new URI(request.uri),
         request.headerMap.toMap,
-        Map.empty[String, String],
+        Map.empty[String, Param],
         URLHelper.parseQueryParams(request.uri),
         body,
         request

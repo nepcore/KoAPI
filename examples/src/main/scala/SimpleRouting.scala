@@ -7,7 +7,7 @@ class SimpleController extends Controller {
   val static: Action[String] = get("hello") { _ => Ok("Hello, world!") }
 
   val pathParam: Action[String] = get("hello" / StringParam("name")) {
-    request => Ok(s"Hello, ${request.pathParams("name")}")
+    request => Ok(s"Hello, ${request.pathParams("name").getString()}")
   }
 
   val body: Action[String] = post("hello") { request =>

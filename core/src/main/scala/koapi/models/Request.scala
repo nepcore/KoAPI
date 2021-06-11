@@ -3,6 +3,7 @@ package koapi.models
 import java.net.URI
 
 import koapi.models.http.Method
+import koapi.routing.dsl.Param
 
 /** A representation of an HTTP request
   *
@@ -20,7 +21,7 @@ final case class Request[T](
     method: Method.Value,
     uri: URI,
     headers: Map[String, String],
-    pathParams: Map[String, Any],
+    pathParams: Map[String, Param],
     queryParams: Map[String, Seq[String]],
     body: Option[T],
     underlying: Any

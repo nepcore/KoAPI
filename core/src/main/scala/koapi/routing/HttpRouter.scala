@@ -45,10 +45,11 @@ object HttpRouter extends Logger {
               route.parts(i) match {
                 case SimpleRoutePart(part) if part == pathParts(i) =>
                 case ParametrizedRoutePart(part)
-                    if Try(part.fromString(pathParts(i))).isSuccess =>
-                  val param = part.fromString(pathParts(i))
+                    if part.isValid(pathParts(i)) =>
                   parametrizedRequest = parametrizedRequest.copy(pathParams =
-                    parametrizedRequest.pathParams + (part.name -> param)
+                    parametrizedRequest.pathParams + (part.name -> Param(
+                      pathParts(i)
+                    ))
                   )
                 case _ =>
                   matches = false

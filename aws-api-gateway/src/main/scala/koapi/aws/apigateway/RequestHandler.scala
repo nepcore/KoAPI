@@ -16,6 +16,7 @@ import java.util.Base64
 import scala.collection.JavaConverters._
 import scala.util.Try
 import koapi.logging.Logger
+import koapi.routing.dsl.Param
 
 /** The request handler for AWS Lambda */
 class RequestHandler
@@ -62,7 +63,7 @@ class RequestHandler
       Method.withName(event.getHttpMethod()),
       new URI(event.getPath()),
       event.getHeaders().asScala.toMap,
-      Map.empty[String, String],
+      Map.empty[String, Param],
       query,
       body,
       (event, context)

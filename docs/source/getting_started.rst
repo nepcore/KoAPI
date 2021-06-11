@@ -27,7 +27,7 @@ Sometimes you might want to take some user input in different ways though, so le
 .. code:: scala
 
     val helloPathParam: Action[NoBody] = get("hello" / StringParam("name")) { request =>
-      val name = request.pathParams("name")
+      val name = request.pathParams("name").getString()
       Ok(s"Hello $name!")
     }
 
@@ -41,7 +41,7 @@ You can also use the HTTP body as a source for data
       }.getOrElse(BadRequest("I need your name to be able greet you"))
     }
 
-| However, you'll likely be using plain text bodies very rarely, usually your request bodies tend to contain data encoded in a format like JSON
+| However, you'll likely not be using plain text bodies, usually your request bodies tend to contain data encoded in a format like JSON
 | Using the right :doc:`modules` you don't have to worry about that either though
 | Suppose you want to accept a JSON body, you could use the play-json module to be able to do something like the following
 
