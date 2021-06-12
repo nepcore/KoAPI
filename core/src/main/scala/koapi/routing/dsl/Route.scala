@@ -3,6 +3,8 @@ package koapi.routing.dsl
 import koapi.models.{Request, Response}
 import koapi.models.http.Method
 
+import scala.util.Try
+
 sealed trait RouteParam {
   def name: String
   def isValid(part: String): Boolean
@@ -11,13 +13,13 @@ final case class StringParam(name: String) extends RouteParam {
   override def isValid(part: String) = true
 }
 final case class IntParam(name: String) extends RouteParam {
-  override def isValid(part: String) = part.toIntOption.isDefined
+  override def isValid(part: String) = Try(part.toInt).isSuccess
 }
 final case class LongParam(name: String) extends RouteParam {
-  override def isValid(part: String) = part.toLongOption.isDefined
+  override def isValid(part: String) = Try(part.toLong).isSuccess
 }
 final case class BooleanParam(name: String) extends RouteParam {
-  override def isValid(part: String) = part.toBooleanOption.isDefined
+  override def isValid(part: String) = Try(part.toBoolean).isSuccess
 }
 
 final case class Param(value: String) {
@@ -27,9 +29,9 @@ final case class Param(value: String) {
   def getBoolean(): Boolean = value.toBoolean
 
   def getStringOption(): Option[String] = Some(value)
-  def getIntOption(): Option[Int] = value.toIntOption
-  def getLongOption(): Option[Long] = value.toLongOption
-  def getBooleanOption(): Option[Boolean] = value.toBooleanOption
+  def getIntOption(): Option[Int] = Try(value.toInt).toOption
+  def getLongOption(): Option[Long] = Try(value.toLong).toOption
+  def getBooleanOption(): Option[Boolean] = Try(value.toBoolean).toOption
 }
 
 sealed trait RoutePart
