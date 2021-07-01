@@ -254,7 +254,7 @@ trait RouteBuilder {
     * @param reader The body reader to use for the transformation
     * @return A new [[koapi.models.Request]] with the transformed body
     */
-  private def readBody[T](
+  private[koapi] def readBody[T](
       request: Request[Array[Byte]]
   )(implicit reader: BodyReader[T]): Request[T] =
     Request(
@@ -275,11 +275,11 @@ trait RouteBuilder {
     * @param reader The [[koapi.body.BodyWriter]] used to transform the body to the functions input type
     * @return The handler registered (mostly for unit testing purposes)
     */
-  private def register[T](
+  private[koapi] def register[T](
       method: Method.Value,
       route: IndexedSeq[RoutePart],
       handler: Action[T]
-  )(implicit reader: BodyReader[T]) = {
+  )(implicit reader: BodyReader[T]): Unit = {
     HttpRouter.register(
       Route(method, route, request => handler(readBody(request)))
     )

@@ -1,7 +1,7 @@
 import Dependencies._
 
 val scala212 = "2.12.13"
-val scala213 = "2.13.5"
+val scala213 = "2.13.4"
 
 val javacSettings = Seq(
   "-source", "1.8",
@@ -59,13 +59,20 @@ lazy val `play-json` = project
   .settings(libraryDependencies ++= playJsonDependencies)
   .dependsOn(core)
 
+lazy val testutils = project
+  .in(file("testutils"))
+  .settings(commonSettings)
+  .dependsOn(core)
+
 lazy val `examples` = project
   .in(file("examples"))
   .settings(commonSettings)
+  .settings(libraryDependencies ++= testDependencies)
   .settings(mainClass := Some("koapi.finagle.Main"))
   .dependsOn(core)
   .dependsOn(`finagle-http`)
   .dependsOn(`play-json`)
+  .dependsOn(`testutils`)
 
 lazy val root = project
   .in(file("."))
@@ -78,6 +85,7 @@ lazy val root = project
     `finagle-http`,
     `aws-api-gateway`,
     `play-json`,
+    `testutils`,
     `examples`
   )
 

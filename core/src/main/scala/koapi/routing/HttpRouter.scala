@@ -9,7 +9,51 @@ import scala.util.Try
 
 import com.typesafe.config.ConfigFactory
 
+trait RouterLogic {
+  def findRoute(
+      routes: Seq[Route[Array[Byte]]],
+      request: Request[Array[Byte]]
+  ): Option[(Route[Array[Byte]], Request[Array[Byte]])]
+}
+
+class RouterLogicImpl extends RouterLogic {
+  def findRoute(
+      routes: Seq[Route[Array[Byte]]],
+      request: Request[Array[Byte]]
+  ) = {
+    var parametrizedRequest =
+      request.copy(headers = request.headers.map(x => (x._1.toLowerCase, x._2)))
+    val pathParts =
+      request.uri.getPath.substring(1).split("/").filter(_.length() != 0)
+    routes
+      .filter { route => route.parts.length == pathParts.length }
+      .find { route =>
+        var matches = true
+        if (route.method != request.method) {
+          matches = false
+        } else {
+          for (i <- route.parts.indices) {
+            route.parts(i) match {
+              case SimpleRoutePart(part) if part == pathParts(i) =>
+              case ParametrizedRoutePart(part) if part.isValid(pathParts(i)) =>
+                parametrizedRequest = parametrizedRequest.copy(pathParams =
+                  parametrizedRequest.pathParams + (part.name -> Param(
+                    pathParts(i)
+                  ))
+                )
+              case _ =>
+                matches = false
+            }
+          }
+        }
+        matches
+      }
+      .map((_, parametrizedRequest))
+  }
+}
+
 object HttpRouter extends Logger {
+  private val routerLogic: RouterLogic = new RouterLogicImpl()
   private val routes: ListBuffer[Route[Array[Byte]]] = ListBuffer()
 
   /** Registers a new route handler
@@ -30,49 +74,23 @@ object HttpRouter extends Logger {
     */
   def handle(request: Request[Array[Byte]]): Response[_] = {
     logger.debug(s"Routing request for ${request.uri}")
-    var parametrizedRequest =
-      request.copy(headers = request.headers.map(x => (x._1.toLowerCase, x._2)))
-    val pathParts =
-      request.uri.getPath.substring(1).split("/").filter(_.length() != 0)
-    val maybeRoute =
-      routes.filter { route => route.parts.length == pathParts.length }.find {
-        route =>
-          var matches = true
-          if (route.method != request.method) {
-            matches = false
-          } else {
-            for (i <- route.parts.indices) {
-              route.parts(i) match {
-                case SimpleRoutePart(part) if part == pathParts(i) =>
-                case ParametrizedRoutePart(part)
-                    if part.isValid(pathParts(i)) =>
-                  parametrizedRequest = parametrizedRequest.copy(pathParams =
-                    parametrizedRequest.pathParams + (part.name -> Param(
-                      pathParts(i)
-                    ))
-                  )
-                case _ =>
-                  matches = false
-              }
-            }
-          }
-          matches
-      }
 
-    maybeRoute
-      .map { route =>
-        Try {
-          logger.debug(
-            s"Matching route found, calling handler with request $parametrizedRequest"
+    routerLogic
+      .findRoute(routes.toSeq, request)
+      .map {
+        case (route, parametrizedRequest) =>
+          Try {
+            logger.debug(
+              s"Matching route found, calling handler with request $parametrizedRequest"
+            )
+            route.handler(parametrizedRequest)
+          }.fold(
+            {
+              case e: BodyParsingException => ErrorHandler(e)
+              case e                       => ErrorHandler(HandlerException(e))
+            },
+            ok => ok
           )
-          route.handler(parametrizedRequest)
-        }.fold(
-          {
-            case e: BodyParsingException => ErrorHandler(e)
-            case e                       => ErrorHandler(HandlerException(e))
-          },
-          ok => ok
-        )
       }
       .getOrElse(ErrorHandler(NotFoundError))
   }

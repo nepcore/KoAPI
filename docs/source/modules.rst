@@ -7,6 +7,7 @@ Modules
    modules/finagle-http
    modules/aws-api-gateway
    modules/play-json
+   modules/testutils
 
 
 | :project_name: is built to be modular, this also means there are different types of modules
@@ -36,3 +37,10 @@ Modules that add support for data formats usually implement one or more ``BodyRe
 play-json
 ^^^^^^^^^
 :doc:`modules/play-json` provides ``BodyWriter``\ s and ``BodyReader``\ s to handle json using the `Play JSON library <https://github.com/playframework/play-json>`_
+
+Miscellaneous
+-------------
+
+testutils
+^^^^^^^^^
+:doc:`modules/testutils` provides utilities to make unit testing your controllers easy
