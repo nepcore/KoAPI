@@ -42,7 +42,7 @@ class RequestHandler
       Option(event.getBody()).map(_.getBytes())
     }
 
-    val multiValueQueryParams =
+    val query =
       Option(event.getMultiValueQueryStringParameters())
         .map { params =>
           params.asScala.mapValues { value =>
@@ -50,14 +50,6 @@ class RequestHandler
           }.toMap
         }
         .getOrElse(Map())
-
-    val singleValueQueryParams = Option(event.getQueryStringParameters())
-      .map { params =>
-        params.asScala.mapValues { value => Seq(Option(value)).flatten }.toMap
-      }
-      .getOrElse(Map())
-
-    val query = multiValueQueryParams ++ singleValueQueryParams
 
     val request = Request(
       Method.withName(event.getHttpMethod()),
