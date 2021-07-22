@@ -1,6 +1,5 @@
 package koapi
 
-import koapi.Controller
 import koapi.body.BodyReader
 import koapi.models.Request
 import koapi.models.http.Method

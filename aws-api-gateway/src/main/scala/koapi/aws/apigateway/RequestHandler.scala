@@ -78,7 +78,8 @@ class RequestHandler
     logger.debug(s"Responding to request with response $response")
 
     new APIGatewayProxyResponseEvent()
-      .withBody(new String(response.written))
+      .withIsBase64Encoded(true)
+      .withBody(new String(Base64.getEncoder().encode(response.written)))
       .withStatusCode(response.status)
       .withHeaders(response.headers.asJava)
   }
