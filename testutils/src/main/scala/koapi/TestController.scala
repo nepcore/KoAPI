@@ -8,6 +8,7 @@ import koapi.routing.dsl.{Route, RoutePart}
 import scala.collection.mutable.ListBuffer
 import java.net.URI
 import koapi.logging.Logger
+import koapi.utils.URLHelper
 
 class ControllerTestException(msg: String) extends Exception(msg)
 
@@ -35,7 +36,7 @@ trait TestController extends Controller with Logger {
       new URI(uri),
       headers,
       Map.empty,
-      Map.empty,
+      URLHelper.parseQueryParams(uri),
       Option(body).map(_.getBytes()),
       underlying
     )
